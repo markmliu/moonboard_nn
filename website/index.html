@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>MoonBoard Grader</title>
+    <link rel="stylesheet" href="static/css/layout.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <h1>MoonBoard Grader</h1>
+    <div class="button-container">
+      <input type="button" class="red" value="GRADE" id="grade-button">
+    </div>
+
+    <h2>Options</h2>
+    <div id="options-container">
+        <span><b>Hold type:</b></span>
+        <label><input type="radio" name="hold_type" value="1" onclick="updateHoldType(this)" ><span>Start</span></label>
+        <label><input type="radio" name="hold_type" value="2" onclick="updateHoldType(this)" checked="checked"><span>Intermediate</span></label>
+	<label><input type="radio" name="hold_type" value="3" onclick="updateHoldType(this)" ><span>Finish</span></label>
+    </div>
+
+
+    <h2>Grading Algorithm</h2>
+    <div id="grade-container">
+        <span>Predicted Font Grade</span>
+        <span class="grade" id="predicted_grade"></span>
+    </div>
+    <div class="background-image" title="MoonBoard Wall">
+      <div class="grid-container" id="moon-board">
+      </div>
+    </div>
+
+    <footer>
+      <script type="text/javascript" src="static/js/layouts/holds_2016.js"></script>
+      <script type="text/javascript" src="static/js/helpers.js"></script>
+      <a href="https://github.com/markmliu/moonboard_nn">Github</a>
+    </footer>
+  </body>
+</html>
