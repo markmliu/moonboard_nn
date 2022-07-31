@@ -90,7 +90,7 @@ def grade():
     upper_bd = math.ceil(pred_grade_float)
     lower_bd = math.floor(pred_grade_float)
     reverse_grade_map = get_reverse_grade_map()
-    predicted_grade = reverse_grade_map[lower_bd]+"-"+reverse_grade_map[upper_bd]
+    predicted_grade = reverse_grade_map[lower_bd]+" - "+reverse_grade_map[upper_bd]
 
     return jsonify({"predicted_grade": predicted_grade})
 
