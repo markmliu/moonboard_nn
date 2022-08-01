@@ -21,6 +21,68 @@ function colorForHoldType(hold_type) {
   return "lightpink";
 }
 
+function validateHolds() {
+  holds = Object.keys(clicked_holds);
+  // Validation checking first
+  if (holds.length == 0) {
+    document.getElementById("predicted_grade").textContent="No holds selected";
+    return false;
+  }
+
+  if (holds.length > 12) {
+    document.getElementById("predicted_grade").textContent="More than 12 holds selected...";
+    return false;
+  }
+
+  var num_start = 0;
+  var num_end = 0;
+  for (const [key, val] of Object.entries(clicked_holds)) {
+    if (val == 1) {
+      num_start++;
+    }
+    if (val == 3) {
+      num_end++;
+    }
+  }
+
+  if (num_start == 0) {
+    document.getElementById("predicted_grade").textContent="No start holds selected";
+    return false;
+  }
+
+  if (num_start > 2) {
+    document.getElementById("predicted_grade").textContent="More than 2 start holds selected...";
+    return false;
+  }
+
+  if (num_end == 0) {
+    document.getElementById("predicted_grade").textContent="No end holds selected";
+    return false;
+  }
+
+  if (num_end > 2) {
+    document.getElementById("predicted_grade").textContent="More than 2 end holds selected...";
+    return false;
+  }
+
+  // selected holds are valid, let buttons be clickable now
+  if (document.getElementById("grade-button").classList.contains("disabled")) {
+    document.getElementById("grade-button").classList.remove("disabled");
+    document.getElementById("grade-button").classList.add("enabled");
+    document.getElementById("grade-button").disabled = false;
+  };
+
+  if (document.getElementById("share-button").classList.contains("disabled")) {
+    document.getElementById("share-button").classList.remove("disabled");
+    document.getElementById("share-button").classList.add("enabled");
+    document.getElementById("share-button").disabled = false;
+  };
+
+
+
+  return true;
+}
+
 function onClickHold(event) {
   var rect = event.target.getBoundingClientRect();
   var rect_center = [(rect.left + rect.right) / 2, (rect.bottom+rect.top)/2]
@@ -44,47 +106,14 @@ function onClickHold(event) {
     event.target.style.borderStyle = "";
   }
   console.log(clicked_holds);
+  validateHolds();
 }
 
-async function gradeButtonCallback() {
+async function onClickGrade() {
+  if (!validateHolds()) {
+    return;
+  }
   holds = Object.keys(clicked_holds);
-
-  // Validation checking first
-  if (holds.length > 12) {
-    document.getElementById("predicted_grade").textContent="More than 12 holds selected...";
-    return;
-  }
-
-  var num_start = 0;
-  var num_end = 0;
-  for (const [key, val] of Object.entries(clicked_holds)) {
-    if (val == 1) {
-      num_start++;
-    }
-    if (val == 3) {
-      num_end++;
-    }
-  }
-
-  if (num_start == 0) {
-    document.getElementById("predicted_grade").textContent="No start holds selected";
-    return;
-  }
-
-  if (num_start > 2) {
-    document.getElementById("predicted_grade").textContent="More than 2 start holds selected...";
-    return;
-  }
-
-  if (num_end == 0) {
-    document.getElementById("predicted_grade").textContent="No end holds selected";
-    return;
-  }
-
-  if (num_end > 2) {
-    document.getElementById("predicted_grade").textContent="More than 2 end holds selected...";
-  }
-
   // send "clicked_holds" down to /grade endpoint
   var holds_json = JSON.stringify(holds);
 
@@ -108,7 +137,10 @@ async function gradeButtonCallback() {
 
 }
 
-// TODO: rename the function since we're doing more than adding click callbacks
+function onClickShare() {
+
+}
+
 function addCallbacks() {
   holds = holds_2016
 
@@ -128,7 +160,10 @@ function addCallbacks() {
 
   // add grade button callback
   var button = document.getElementById("grade-button");
-  button.addEventListener('click', gradeButtonCallback);
+  button.addEventListener('click', onClickGrade);
+
+  var share_button = document.getElementById("share-button");
+  button.addEventListener('click', onClickShare);
 
 }
 

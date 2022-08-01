@@ -50,6 +50,14 @@ div.option {
     display: grid;
 }
 
+.disabled {
+    background: gray
+}
+
+.enabled {
+    background: #EEEEEE;
+}
+
 
 body {
     max-width: 650px;
@@ -85,12 +93,11 @@ input {
   cursor: pointer;
 }
 
-input[type=button] {
+#grade-button {
   color: #000 !important;
   cursor: pointer;
   font-weight: 700;
   text-transform: uppercase;
-  background: #EEEEEE;
   padding: 10px;
   margin: 10px 100px;
   border-radius: 5px;
@@ -99,13 +106,17 @@ input[type=button] {
   font-size: 20px;
 }
 
-input[type=button]:hover {
-  background: #FFF;
-  -webkit-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
-  -moz-box-shadow: 0px 5px 40px -10px rgba(0,0,0,0.57);
-  box-shadow: 5px 40px -10px rgba(0,0,0,0.57);
+#share-button {
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 10px;
+  margin: 10px 100px;
+  border-radius: 5px;
+  display: inline-block;
+  border: none;
+  font-size: 20px;
 }
-
 
 footer {
   text-align: center;
