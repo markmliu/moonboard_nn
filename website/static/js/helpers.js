@@ -65,21 +65,41 @@ function validateHolds() {
     return false;
   }
 
-  // selected holds are valid, let buttons be clickable now
   document.getElementById("predicted_grade").textContent="";
-  if (document.getElementById("grade-button").classList.contains("disabled")) {
-    document.getElementById("grade-button").classList.remove("disabled");
-    document.getElementById("grade-button").classList.add("enabled");
-    document.getElementById("grade-button").disabled = false;
-  };
-
-  if (document.getElementById("share-button").classList.contains("disabled")) {
-    document.getElementById("share-button").classList.remove("disabled");
-    document.getElementById("share-button").classList.add("enabled");
-    document.getElementById("share-button").disabled = false;
-  };
-
   return true;
+}
+
+function validateHoldsAndUpdateButtons() {
+  let valid = validateHolds();
+  if (valid) {
+    // selected holds are valid, let buttons be clickable now
+    if (document.getElementById("grade-button").classList.contains("disabled")) {
+      document.getElementById("grade-button").classList.remove("disabled");
+      document.getElementById("grade-button").classList.add("enabled");
+      document.getElementById("grade-button").disabled = false;
+    };
+
+    if (document.getElementById("share-button").classList.contains("disabled")) {
+      document.getElementById("share-button").classList.remove("disabled");
+      document.getElementById("share-button").classList.add("enabled");
+      document.getElementById("share-button").disabled = false;
+    };
+    return true;
+  } else {
+    // selected holds are not valid, disable buttons now
+    if (document.getElementById("grade-button").classList.contains("enabled")) {
+      document.getElementById("grade-button").classList.remove("enabled");
+      document.getElementById("grade-button").classList.add("disabled");
+      document.getElementById("grade-button").disabled = true;;
+    };
+    if (document.getElementById("share-button").classList.contains("enabled")) {
+      document.getElementById("share-button").classList.remove("enabled");
+      document.getElementById("share-button").classList.add("disabled");
+      document.getElementById("share-button").disabled = true;;
+    };
+    return false;
+  }
+
 }
 
 function toggleHoldState(id, type) {
@@ -101,7 +121,7 @@ function toggleHoldState(id, type) {
     target.style.borderStyle = "";
   }
   console.log(clickedHolds);
-  validateHolds();
+  validateHoldsAndUpdateButtons();
 }
 
 function onClickHold(event) {
@@ -144,13 +164,21 @@ function addClickedHoldsToURL() {
     return;
   }
 
-  var searchParams = new URLSearchParams(window.location.search);
+  var searchParams = new URLSearchParams();
 
   for (const [k,v] of Object.entries(clickedHolds)) {
     if (!searchParams.has(k)) {
       searchParams.append(k, v.toString());
     }
   }
+  // // make sure searchParams doesnt have any entries it shouldn't
+  // for (const [k,v] of searchParams.entries()) {
+  //   if (!k in clickedHolds) {
+  //     searchParams.delete(k)
+  //   }
+  // }
+
+
   window.location.search = searchParams.toString();
   navigator.clipboard.writeText(window.location.href+searchParams.toString()).then(
     function() {
