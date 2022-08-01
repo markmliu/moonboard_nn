@@ -158,6 +158,24 @@ async function onClickGrade() {
 
 }
 
+function copyToClipboard(textToCopy) {
+    // text area method
+    let textArea = document.createElement("textarea");
+    textArea.value = textToCopy;
+    // make the textarea out of viewport
+    textArea.style.position = "fixed";
+    textArea.style.left = "-999999px";
+    textArea.style.top = "-999999px";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    return new Promise((res, rej) => {
+        // here the magic happens
+        document.execCommand('copy') ? res() : rej();
+        textArea.remove();
+    });
+}
+
 function addClickedHoldsToURL() {
   if (!'URLSearchParams' in window) {
     console.log("not supported");
@@ -171,16 +189,7 @@ function addClickedHoldsToURL() {
       searchParams.append(k, v.toString());
     }
   }
-  // // make sure searchParams doesnt have any entries it shouldn't
-  // for (const [k,v] of searchParams.entries()) {
-  //   if (!k in clickedHolds) {
-  //     searchParams.delete(k)
-  //   }
-  // }
-
-
-  window.location.search = searchParams.toString();
-  navigator.clipboard.writeText(window.location.href+searchParams.toString()).then(
+  copyToClipboard(window.location.href+"?"+searchParams.toString()).then(
     function() {
       /* clipboard successfully set */
       window.alert('Url copied to clipboard')
@@ -190,7 +199,7 @@ function addClickedHoldsToURL() {
       window.alert('Opps! Your browser does not support the Clipboard API')
     }
   )
-
+  window.location.search = searchParams.toString();
 }
 
 function onClickShare() {
