@@ -82,7 +82,7 @@ function validateHolds() {
   return true;
 }
 
-function clickHold(id, type) {
+function toggleHoldState(id, type) {
   target = document.getElementById(id);
   // toggle the clicked value
   let clicked_on = target.classList.toggle('m-clicked');
@@ -107,7 +107,7 @@ function clickHold(id, type) {
 function onClickHold(event) {
   id = event.target.id;
   type = holdType;
-  clickHold(id, type);
+  toggleHoldState(id, type);
 }
 
 async function onClickGrade() {
@@ -147,18 +147,22 @@ function addClickedHoldsToURL() {
   var searchParams = new URLSearchParams(window.location.search);
 
   for (const [k,v] of Object.entries(clickedHolds)) {
-    searchParams.append(k, v.toString());
+    if (!searchParams.has(k)) {
+      searchParams.append(k, v.toString());
+    }
   }
   window.location.search = searchParams.toString();
-}
+  navigator.clipboard.writeText(window.location.href+searchParams.toString()).then(
+    function() {
+      /* clipboard successfully set */
+      window.alert('Url copied to clipboard')
+    },
+    function() {
+      /* clipboard write failed */
+      window.alert('Opps! Your browser does not support the Clipboard API')
+    }
+  )
 
-function clickedHoldsFromStr(clickedHoldsStr) {
-  let clickedHolds = {}
-  for (let holdType in clickedHoldsStr.split(",")) {
-    holdType=holdType.split(":")
-    clickedHolds[holdType[0]]=holdType[1]
-  }
-  return clickedHolds;
 }
 
 function onClickShare() {
@@ -197,7 +201,7 @@ function addCallbacks() {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
   for (const [k,v] of Object.entries(params)) {
-    clickHold(k, parseInt(v));
+    toggleHoldState(k, parseInt(v));
   }
   if (validateHolds()) {
     onClickGrade();

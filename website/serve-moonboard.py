@@ -100,12 +100,5 @@ def grade():
 
     return jsonify({"predicted_grade": predicted_grade})
 
-@app.route("/share", methods=['POST'])
-def share():
-    print("share request called")
-    # array of holds
-    holds = request.json
-
-
 if __name__ == "__main__":
     app.run(ssl_context="adhoc")
