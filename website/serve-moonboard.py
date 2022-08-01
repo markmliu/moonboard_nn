@@ -6,10 +6,16 @@ import pickle
 import numpy as np
 import tensorflow as tf
 import math
+import uuid
+
+import threading
 
 from tensorflow.keras import datasets, layers, models
 
 GRADE_MODEL = models.load_model('moonboard_model.h5')
+
+# lock for writing to generated problems file
+FILE_LOCK = threading.Lock()
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -93,6 +99,13 @@ def grade():
     predicted_grade = reverse_grade_map[lower_bd]+" - "+reverse_grade_map[upper_bd]
 
     return jsonify({"predicted_grade": predicted_grade})
+
+@app.route("/share", methods=['POST'])
+def share():
+    print("share request called")
+    # array of holds
+    holds = request.json
+
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc")

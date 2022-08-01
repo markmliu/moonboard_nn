@@ -1,5 +1,5 @@
-var hold_type = 2 // 1 is start, 2 is intermediate, 3 is finish
-var clicked_holds = {}
+var holdType = 2 // 1 is start, 2 is intermediate, 3 is finish
+var clickedHolds = {}
 
 function clearContents(container) {
   while (container.firstChild) {
@@ -8,21 +8,21 @@ function clearContents(container) {
 }
 
 function updateHoldType(radio) {
-  hold_type = parseInt(radio.value);
-  console.log("hold_type:", hold_type);
+  holdType = parseInt(radio.value);
+  console.log("holdType:", holdType);
 }
 
-function colorForHoldType(hold_type) {
-  if (hold_type == 1){
+function colorForHoldType(holdType) {
+  if (holdType == 1){
     return "lightgreen";
-  } else if (hold_type ==2) {
+  } else if (holdType ==2) {
     return "lightblue";
   }
   return "lightpink";
 }
 
 function validateHolds() {
-  holds = Object.keys(clicked_holds);
+  holds = Object.keys(clickedHolds);
   // Validation checking first
   if (holds.length == 0) {
     document.getElementById("predicted_grade").textContent="No holds selected";
@@ -36,7 +36,7 @@ function validateHolds() {
 
   var num_start = 0;
   var num_end = 0;
-  for (const [key, val] of Object.entries(clicked_holds)) {
+  for (const [key, val] of Object.entries(clickedHolds)) {
     if (val == 1) {
       num_start++;
     }
@@ -66,6 +66,7 @@ function validateHolds() {
   }
 
   // selected holds are valid, let buttons be clickable now
+  document.getElementById("predicted_grade").textContent="";
   if (document.getElementById("grade-button").classList.contains("disabled")) {
     document.getElementById("grade-button").classList.remove("disabled");
     document.getElementById("grade-button").classList.add("enabled");
@@ -78,43 +79,43 @@ function validateHolds() {
     document.getElementById("share-button").disabled = false;
   };
 
-
-
   return true;
 }
 
-function onClickHold(event) {
-  var rect = event.target.getBoundingClientRect();
-  var rect_center = [(rect.left + rect.right) / 2, (rect.bottom+rect.top)/2]
-
-  // ignore the click if it's not in quite far in the box
+function clickHold(id, type) {
+  target = document.getElementById(id);
   // toggle the clicked value
-
-  var clicked_on = event.target.classList.toggle('m-clicked')
+  let clicked_on = target.classList.toggle('m-clicked');
   if (clicked_on) {
-    clicked_holds[event.target.id] = hold_type;
+    clickedHolds[target.id] = type;
     // set color appropriately
-    event.target.style.borderColor = colorForHoldType(hold_type);
-    event.target.style.borderRadius = "50%";
-    event.target.style.borderWidth = "4px";
-    event.target.style.borderStyle = "solid";
+    target.style.borderColor = colorForHoldType(type);
+    target.style.borderRadius = "50%";
+    target.style.borderWidth = "4px";
+    target.style.borderStyle = "solid";
   } else {
-    delete clicked_holds[event.target.id];
-    event.target.style.borderColor = "";
-    event.target.style.borderRadius = "";
-    event.target.style.borderWidth = "";
-    event.target.style.borderStyle = "";
+    delete clickedHolds[target.id];
+    target.style.borderColor = "";
+    target.style.borderRadius = "";
+    target.style.borderWidth = "";
+    target.style.borderStyle = "";
   }
-  console.log(clicked_holds);
+  console.log(clickedHolds);
   validateHolds();
+}
+
+function onClickHold(event) {
+  id = event.target.id;
+  type = holdType;
+  clickHold(id, type);
 }
 
 async function onClickGrade() {
   if (!validateHolds()) {
     return;
   }
-  holds = Object.keys(clicked_holds);
-  // send "clicked_holds" down to /grade endpoint
+  holds = Object.keys(clickedHolds);
+  // send "clickedHolds" down to /grade endpoint
   var holds_json = JSON.stringify(holds);
 
   console.log(holds_json);
@@ -137,8 +138,35 @@ async function onClickGrade() {
 
 }
 
-function onClickShare() {
+function addClickedHoldsToURL() {
+  if (!'URLSearchParams' in window) {
+    console.log("not supported");
+    return;
+  }
 
+  var searchParams = new URLSearchParams(window.location.search);
+
+  for (const [k,v] of Object.entries(clickedHolds)) {
+    searchParams.append(k, v.toString());
+  }
+  window.location.search = searchParams.toString();
+}
+
+function clickedHoldsFromStr(clickedHoldsStr) {
+  let clickedHolds = {}
+  for (let holdType in clickedHoldsStr.split(",")) {
+    holdType=holdType.split(":")
+    clickedHolds[holdType[0]]=holdType[1]
+  }
+  return clickedHolds;
+}
+
+function onClickShare() {
+  if (!validateHolds()) {
+    return;
+  }
+
+  addClickedHoldsToURL();
 }
 
 function addCallbacks() {
@@ -163,8 +191,17 @@ function addCallbacks() {
   button.addEventListener('click', onClickGrade);
 
   var share_button = document.getElementById("share-button");
-  button.addEventListener('click', onClickShare);
+  share_button.addEventListener('click', onClickShare);
 
+  // get anything in the query params
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  for (const [k,v] of Object.entries(params)) {
+    clickHold(k, parseInt(v));
+  }
+  if (validateHolds()) {
+    onClickGrade();
+  }
 }
 
 window.onload = addCallbacks;
