@@ -111,7 +111,7 @@ class SaveHistoryCheckpoint(keras.callbacks.Callback):
         save_history_file(self.model_path, self.history)
         save_training_plots(self.model_path)
 
-def convert_problem_to_input(holds):
+def convert_problem_to_name_input(holds):
     # encode each problem as csv list of holds, followed by space, then name of the problem
     inp = []
     hold_string = ','.join([hold['Description'] for hold in holds])
@@ -126,13 +126,14 @@ def sample_from_prob_vec(pr):
     idxs = np.arange(len(pr))
     return np.random.choice(idxs, 1, p=pr)[0]
 
-# Take "hold text (like 'A5,B8,D12,F14,I18 ' or output of `convert_problem_to_input` and output a name)
+# Take "hold text (like 'A5,B8,D12,F14,I18 ' or output of `convert_problem_to_name_input` and output a name)
 def name_text(text, model, char_to_int, int_to_char, max_length, end_token, prefix=None):
+    orig_len = len(text)
     if prefix is not None:
         prefix = prefix.upper()
         if valid_string(prefix):
-            aug_text = text+prefix
-    texts = [aug_text]
+            text += prefix
+    texts = [text]
     #single
     # for each text, continue predicting until we reach max length or end token
     final_texts = texts

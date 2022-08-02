@@ -118,6 +118,18 @@ input {
   font-size: 20px;
 }
 
+#name-button {
+  cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 10px;
+  margin: 10px 100px;
+  border-radius: 5px;
+  display: inline-block;
+  border: none;
+  font-size: 20px;
+}
+
 footer {
   text-align: center;
   font-size: 14px;

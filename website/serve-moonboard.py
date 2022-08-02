@@ -7,23 +7,33 @@ import numpy as np
 import tensorflow as tf
 import math
 import uuid
-
-import threading
+import sys
+import json
 
 from tensorflow.keras import datasets, layers, models
 
 GRADE_MODEL = models.load_model('moonboard_model.h5')
-
-# lock for writing to generated problems file
-FILE_LOCK = threading.Lock()
+NAME_MODEL_PATH = '../names/moonboard_names_model_128'
+NAME_MODEL = models.load_model(NAME_MODEL_PATH + '/model.h5')
+NAME_PARAMS = json.load(open(NAME_MODEL_PATH + '/params.json'))
 
 app = Flask(__name__)
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 CORS(app)
 
+# hack to include utils from another directory - lets get rid of this
+def include_utils_in_path():
+    cwd = os.getcwd()
+    parent_wd = cwd.replace('/website', '')
+    utils_path = os.path.join(parent_wd, 'names')
+    sys.path.insert(1, utils_path)
+
+include_utils_in_path()
+import utils
+
 # helpers - TODO: dont double define these
-def stringToCoordinate(coordinate_string):
+def string_to_coordinate(coordinate_string):
     """ convert "J5" to (9.0,4.0) """
     x = ord(coordinate_string[0])-ord('A')
     y = int(coordinate_string[1:])-1
@@ -33,7 +43,7 @@ def convert_problem_to_input(holds):
     # each problem is on 11x18 board, encode as (x,y) coordinates, zero-indexed, starting from bottom left corner
     inp = np.zeros((11,18))
     for hold_string in holds:
-        inp[stringToCoordinate(hold_string)] = 1
+        inp[string_to_coordinate(hold_string)] = 1
     return inp
 
 def get_grade_map():
@@ -99,6 +109,22 @@ def grade():
     predicted_grade = reverse_grade_map[lower_bd]+" - "+reverse_grade_map[upper_bd]
 
     return jsonify({"predicted_grade": predicted_grade})
+
+@app.route("/name", methods=['POST'])
+def name():
+    # get problem from request..
+    print("grade request called")
+    print(request.json)
+    # join the array of holds together and add a space.
+    inp = ",".join(request.json) + " "
+    SEQUENCE_LENGTH = 128
+    char_to_int = NAME_PARAMS['char_to_int']
+    int_to_char = NAME_PARAMS['int_to_char']
+    END_TOKEN = char_to_int['|']
+    name = utils.name_text(inp, NAME_MODEL, char_to_int, int_to_char, SEQUENCE_LENGTH, END_TOKEN, prefix=None)
+    print(name)
+    return jsonify({"name": name})
+
 
 if __name__ == "__main__":
     app.run(ssl_context="adhoc")

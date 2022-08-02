@@ -69,34 +69,35 @@ function validateHolds() {
   return true;
 }
 
+function enable_button(id) {
+    if (document.getElementById(id).classList.contains("disabled")) {
+      document.getElementById(id).classList.remove("disabled");
+      document.getElementById(id).classList.add("enabled");
+      document.getElementById(id).disabled = false;
+    };
+}
+
+function disable_button(id) {
+    if (document.getElementById(id).classList.contains("enabled")) {
+      document.getElementById(id).classList.remove("enabled");
+      document.getElementById(id).classList.add("disabled");
+      document.getElementById(id).disabled = true;
+    };
+}
+
 function validateHoldsAndUpdateButtons() {
   let valid = validateHolds();
   if (valid) {
-    // selected holds are valid, let buttons be clickable now
-    if (document.getElementById("grade-button").classList.contains("disabled")) {
-      document.getElementById("grade-button").classList.remove("disabled");
-      document.getElementById("grade-button").classList.add("enabled");
-      document.getElementById("grade-button").disabled = false;
-    };
+    enable_button("grade-button");
+    enable_button("share-button");
+    enable_button("name-button");
 
-    if (document.getElementById("share-button").classList.contains("disabled")) {
-      document.getElementById("share-button").classList.remove("disabled");
-      document.getElementById("share-button").classList.add("enabled");
-      document.getElementById("share-button").disabled = false;
-    };
     return true;
   } else {
-    // selected holds are not valid, disable buttons now
-    if (document.getElementById("grade-button").classList.contains("enabled")) {
-      document.getElementById("grade-button").classList.remove("enabled");
-      document.getElementById("grade-button").classList.add("disabled");
-      document.getElementById("grade-button").disabled = true;;
-    };
-    if (document.getElementById("share-button").classList.contains("enabled")) {
-      document.getElementById("share-button").classList.remove("enabled");
-      document.getElementById("share-button").classList.add("disabled");
-      document.getElementById("share-button").disabled = true;;
-    };
+    disable_button("grade-button");
+    disable_button("share-button");
+    disable_button("name-button");
+
     return false;
   }
 
@@ -136,7 +137,7 @@ async function onClickGrade() {
   }
   holds = Object.keys(clickedHolds);
   // send "clickedHolds" down to /grade endpoint
-  var holds_json = JSON.stringify(holds);
+  let holds_json = JSON.stringify(holds);
 
   console.log(holds_json);
 
@@ -211,6 +212,35 @@ function onClickShare() {
   addClickedHoldsToURL();
 }
 
+function onClickName() {
+  if (!validateHolds()) {
+    return;
+  }
+  holds = Object.keys(clickedHolds);
+  // send "clickedHolds" down to /grade endpoint
+  let holds_json = JSON.stringify(holds);
+
+  console.log(holds_json);
+
+  fetch('/name', {
+    method: 'post',
+    body: holds_json,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      var name = data["name"];
+      document.getElementById("problem-name").textContent=name;
+
+    })
+    .catch(console.error);
+
+
+}
+
 function addCallbacks() {
   holds = holds_2016
 
@@ -229,11 +259,14 @@ function addCallbacks() {
   }
 
   // add grade button callback
-  var button = document.getElementById("grade-button");
-  button.addEventListener('click', onClickGrade);
+  let grade_button = document.getElementById("grade-button");
+  grade_button.addEventListener('click', onClickGrade);
 
-  var share_button = document.getElementById("share-button");
+  let share_button = document.getElementById("share-button");
   share_button.addEventListener('click', onClickShare);
+
+  let name_button = document.getElementById("name-button");
+  name_button.addEventListener('click', onClickName);
 
   // get anything in the query params
   const urlSearchParams = new URLSearchParams(window.location.search);
