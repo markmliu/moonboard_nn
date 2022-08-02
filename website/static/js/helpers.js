@@ -255,7 +255,12 @@ function onClickName() {
       setName(name);
     })
     .catch(console.error);
+}
 
+function onClickClear() {
+  for (const [k,v] of Object.entries(clickedHolds)) {
+    toggleHoldState(k, v);
+  }
 
 }
 
@@ -285,6 +290,10 @@ function addCallbacks() {
 
   let name_button = document.getElementById("name-button");
   name_button.addEventListener('click', onClickName);
+
+  let clear_button = document.getElementById("clear-button");
+  clear_button.addEventListener('click', onClickClear);
+
 
   // get anything in the query params
   const urlSearchParams = new URLSearchParams(window.location.search);
