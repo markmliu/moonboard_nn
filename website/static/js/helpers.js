@@ -189,7 +189,8 @@ function addClickedHoldsToURL() {
       searchParams.append(k, v.toString());
     }
   }
-  copyToClipboard(window.location.href+"?"+searchParams.toString()).then(
+  let base_url = window.location.href.split('?')[0];
+  copyToClipboard(base_url+"?"+searchParams.toString()).then(
     function() {
       /* clipboard successfully set */
       window.alert('Url copied to clipboard')
