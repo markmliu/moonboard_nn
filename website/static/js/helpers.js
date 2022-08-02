@@ -1,10 +1,16 @@
 var holdType = 2 // 1 is start, 2 is intermediate, 3 is finish
 var clickedHolds = {}
+var PROBLEM_NAME = null
 
 function clearContents(container) {
   while (container.firstChild) {
     container.removeChild(container.firstChild);
   }
+}
+
+function setName(name) {
+  document.getElementById("problem-name").textContent=name;
+  PROBLEM_NAME = name;
 }
 
 function updateHoldType(radio) {
@@ -177,7 +183,7 @@ function copyToClipboard(textToCopy) {
     });
 }
 
-function addClickedHoldsToURL() {
+function addClickedHoldsAndNameToURL() {
   if (!'URLSearchParams' in window) {
     console.log("not supported");
     return;
@@ -190,8 +196,21 @@ function addClickedHoldsToURL() {
       searchParams.append(k, v.toString());
     }
   }
+
+  if (PROBLEM_NAME) {
+    searchParams.append("name", PROBLEM_NAME);
+  }
+
   let base_url = window.location.href.split('?')[0];
-  copyToClipboard(base_url+"?"+searchParams.toString()).then(
+
+  let final_url = base_url+"?"+searchParams.toString();
+  let copy_str = "I made a moonboard problem";
+  if (PROBLEM_NAME) {
+    copy_str += " named " + PROBLEM_NAME;
+  }
+  copy_str += ". Check it out at: " + final_url
+
+  copyToClipboard(copy_str).then(
     function() {
       /* clipboard successfully set */
       window.alert('Url copied to clipboard')
@@ -209,7 +228,7 @@ function onClickShare() {
     return;
   }
 
-  addClickedHoldsToURL();
+  addClickedHoldsAndNameToURL();
 }
 
 function onClickName() {
@@ -232,9 +251,8 @@ function onClickName() {
     .then((response) => response.json())
     .then((data) => {
       console.log(data);
-      var name = data["name"];
-      document.getElementById("problem-name").textContent=name;
-
+      let name = data["name"];
+      setName(name);
     })
     .catch(console.error);
 
@@ -272,7 +290,12 @@ function addCallbacks() {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
   for (const [k,v] of Object.entries(params)) {
-    toggleHoldState(k, parseInt(v));
+    // special case for "name"
+    if (k=="name") {
+      setName(v);
+    } else {
+      toggleHoldState(k, parseInt(v));
+    }
   }
   if (validateHolds()) {
     onClickGrade();
