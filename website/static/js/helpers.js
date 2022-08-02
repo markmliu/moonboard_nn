@@ -261,7 +261,7 @@ function onClickClear() {
   for (const [k,v] of Object.entries(clickedHolds)) {
     toggleHoldState(k, v);
   }
-
+  window.location.search = "";
 }
 
 function addCallbacks() {
