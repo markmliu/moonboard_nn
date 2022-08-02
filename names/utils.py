@@ -147,4 +147,4 @@ def name_text(text, model, char_to_int, int_to_char, max_length, end_token, pref
         if len(sequences[0]) > max_length or ch == end_token:
             break
         final_texts[0]+=int_to_char[ch]
-    return final_texts[0][len(text):]
+    return final_texts[0][orig_len:]

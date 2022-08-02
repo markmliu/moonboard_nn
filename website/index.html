@@ -15,6 +15,7 @@
       <input type="button" value="CLEAR" id="clear-button">
     </div>
 
+
     <div id="grade-container">
         <span>Predicted Font Grade</span>
         <span class="grade" id="predicted_grade"></span>
@@ -26,6 +27,13 @@
         <label><input type="radio" name="hold_type" value="2" onclick="updateHoldType(this)" checked="checked"><span>Intermediate</span></label>
 	<label><input type="radio" name="hold_type" value="3" onclick="updateHoldType(this)" ><span>Finish</span></label>
     </div>
+
+		<form>
+		<input type="checkbox" id="show-prefix-checkbox" name="show-prefix-checkbox" >
+		<label for="show-prefix-checkbox">Use prefix for name</label>
+		<input type="text"  placeholder="Optional prefix of generated name (alphanumeric only)" id="name-prefix">
+		</form>
+
 
     <div class="background-image" title="MoonBoard Wall">
       <div class="grid-container" id="moon-board">

@@ -236,14 +236,14 @@ function onClickName() {
     return;
   }
   holds = Object.keys(clickedHolds);
-  // send "clickedHolds" down to /grade endpoint
-  let holds_json = JSON.stringify(holds);
+	request = {"holds": holds};
+  request["name_prefix"] = document.getElementById('name-prefix').value;
 
-  console.log(holds_json);
+  console.log(request);
 
   fetch('/name', {
     method: 'post',
-    body: holds_json,
+			body: JSON.stringify(request),
     headers: {
       'Content-Type': 'application/json'
     }
@@ -262,6 +262,22 @@ function onClickClear() {
     toggleHoldState(k, v);
   }
   window.location.search = "";
+}
+
+function updatePrefixVisibility(visible) {
+  let text = document.getElementById("name-prefix");
+  if (visible) {
+			text.classList.remove("hide")
+			text.classList.add("show")
+  } else {
+			text.classList.remove("show")
+			text.classList.add("hide")
+  }
+
+}
+
+function onCheck(event) {
+		updatePrefixVisibility(event.currentTarget.checked);
 }
 
 function addCallbacks() {
@@ -292,7 +308,11 @@ function addCallbacks() {
   name_button.addEventListener('click', onClickName);
 
   let clear_button = document.getElementById("clear-button");
-  clear_button.addEventListener('click', onClickClear);
+	clear_button.addEventListener('click', onClickClear);
+
+  let show_prefix_checkbox = document.getElementById("show-prefix-checkbox");
+  show_prefix_checkbox.addEventListener('change', onCheck);
+
 
 
   // get anything in the query params
@@ -309,6 +329,8 @@ function addCallbacks() {
   if (validateHolds()) {
     onClickGrade();
   }
+
+  updatePrefixVisibility(false);
 }
 
 window.onload = addCallbacks;

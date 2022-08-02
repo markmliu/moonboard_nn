@@ -113,15 +113,18 @@ def grade():
 @app.route("/name", methods=['POST'])
 def name():
     # get problem from request..
-    print("grade request called")
     print(request.json)
     # join the array of holds together and add a space.
-    inp = ",".join(request.json) + " "
+    holds = request.json["holds"]
+    inp = ",".join(holds) + " "
     SEQUENCE_LENGTH = 128
     char_to_int = NAME_PARAMS['char_to_int']
     int_to_char = NAME_PARAMS['int_to_char']
     END_TOKEN = char_to_int['|']
-    name = utils.name_text(inp, NAME_MODEL, char_to_int, int_to_char, SEQUENCE_LENGTH, END_TOKEN, prefix=None)
+    prefix = None
+    if "name_prefix" in request.json and request.json["name_prefix"] != "":
+        prefix = request.json["name_prefix"]
+    name = utils.name_text(inp, NAME_MODEL, char_to_int, int_to_char, SEQUENCE_LENGTH, END_TOKEN, prefix)
     print(name)
     return jsonify({"name": name})
 
